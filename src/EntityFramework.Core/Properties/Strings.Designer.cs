@@ -908,6 +908,22 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("DerivedEntityCannotHaveKeys", "entityType"), entityType);
         }
 
+        /// <summary>
+        /// Unable to build a materializer for entity type '{entityType}' because it is abstract. Either make it non-abstract or consider mapping at least one derived type.
+        /// </summary>
+        public static string CantMaterializeAbstractType([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CantMaterializeAbstractType", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The provided referenced entity key '{referencedKey}' is not a key on the entity type '{referencedEntityType}'.
+        /// </summary>
+        public static string ForeignKeyReferencedEntityKeyMismatch([CanBeNull] object referencedKey, [CanBeNull] object referencedEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyReferencedEntityKeyMismatch", "referencedKey", "referencedEntityType"), referencedKey, referencedEntityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
