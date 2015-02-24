@@ -21,7 +21,7 @@ using Microsoft.Framework.OptionsModel;
 
 namespace Microsoft.Framework.DependencyInjection
 {
-    public static class EntityServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         private const int ConfigurationOrder = -1000; // OptionsConstants is internal.
 
