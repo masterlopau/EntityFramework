@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -11,52 +11,23 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.ModelConventions
 {
-    public class KeyConvention : IEntityTypeConvention
+    public class KeyConvention : IKeyConvention
     {
-        private const string KeySuffix = "Id";
-
-        public virtual InternalEntityBuilder Apply(InternalEntityBuilder entityBuilder)
+        public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {
-            Check.NotNull(entityBuilder, nameof(entityBuilder));
-            var entityType = entityBuilder.Metadata;
+            Check.NotNull(keyBuilder, "keyBuilder");
 
-            var keyProperties = DiscoverKeyProperties(entityType);
-            if (keyProperties.Count != 0
-                && entityBuilder.PrimaryKey(keyProperties.Select(p => p.Name).ToList(), ConfigurationSource.Convention) != null)
+            var entityBuilder = keyBuilder.ModelBuilder.Entity(keyBuilder.Metadata.EntityType.Name, ConfigurationSource.Convention);
+            var properties = keyBuilder.Metadata.Properties;
+
+            if (entityBuilder.Metadata.TryGetForeignKey(properties) == null)
             {
-                foreach (var property in keyProperties)
+                foreach (var property in keyBuilder.Metadata.Properties)
                 {
                     ConfigureKeyProperty(entityBuilder.Property(property.PropertyType, property.Name, ConfigurationSource.Convention));
                 }
             }
-
-            return entityBuilder;
-        }
-
-        protected virtual IReadOnlyList<Property> DiscoverKeyProperties([NotNull] EntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            // TODO: Honor [Key]
-            // Issue #213
-            var keyProperties = entityType.Properties
-                .Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            if (keyProperties.Count == 0)
-            {
-                keyProperties = entityType.Properties.Where(
-                    p => string.Equals(p.Name, entityType.SimpleName + KeySuffix, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
-
-            if (keyProperties.Count > 1)
-            {
-                throw new InvalidOperationException(
-                    Strings.MultiplePropertiesMatchedAsKeys(keyProperties.First().Name, entityType.Name));
-            }
-
-            return keyProperties;
+            return keyBuilder;
         }
 
         protected virtual void ConfigureKeyProperty([NotNull] InternalPropertyBuilder propertyBuilder)
@@ -67,16 +38,6 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
 
             // TODO: Nullable, Sequence
             // Issue #213
-        }
-
-        private static bool IsCommonInteger(Type type)
-        {
-            type = type.UnwrapNullableType();
-
-            return type == typeof(int)
-                   || type == typeof(long)
-                   || type == typeof(short)
-                   || type == typeof(byte);
         }
     }
 }

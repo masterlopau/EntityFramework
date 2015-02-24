@@ -21,8 +21,10 @@ namespace Microsoft.Data.Entity.Metadata
             var conventions = new ConventionSet();
 
             conventions.EntityTypeAddedConventions.Add(new PropertiesConvention());
-            conventions.EntityTypeAddedConventions.Add(new KeyConvention());
+            conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
             conventions.EntityTypeAddedConventions.Add(new RelationshipDiscoveryConvention());
+
+            conventions.KeyAddedConventions.Add(new KeyConvention());
 
             conventions.ForeignKeyAddedConventions.Add(new ForeignKeyPropertyDiscoveryConvention());
 

@@ -34,6 +34,22 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             return entityBuilder;
         }
 
+        public virtual InternalKeyBuilder OnKeyAdded([NotNull] InternalKeyBuilder keyBuilder)
+        {
+            Check.NotNull(keyBuilder, "keyBuilder");
+
+            foreach (var keyConvention in _conventionSet.KeyAddedConventions)
+            {
+                keyBuilder = keyConvention.Apply(keyBuilder);
+                if (keyBuilder == null)
+                {
+                    break;
+                }
+            }
+
+            return keyBuilder;
+        }
+
         public virtual InternalRelationshipBuilder OnRelationshipAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
